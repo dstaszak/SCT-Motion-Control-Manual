@@ -24,7 +24,7 @@
 Last updated July, 2016
 
 \vspace{0.3in}
-{\it{\underline{Abstract:}}} We detail the operation and troubleshooting methods for the telescope motion.
+{\it{\underline{Abstract:}}} We detail the operation and troubleshooting methods for the telescope motion control system.
 
 \end{center}
 
@@ -39,6 +39,17 @@ This manual details the system in place to control the mechanical motion of the 
 The motion is controlled by three stepper motors as shown in Fig. \ref{fd2}, and allows up to 5 inches of motion along each independent stepper axis. 
 A web interface hosted on an Arduino Yun interfaces and commands these steppers.
 
+
+\section{Important Warning and Initial Startup}
+
+First, some important warnings:
+\begin{enumerate}
+	\item Once the motion control set screws have been locked (this is done after the camera is aligned) {\bf DO NOT MOVE} the camera in any way except all forward or all backward (called vertical or along axis in the UI).
+	Moving in any other way will break or bend things!
+	\item Every time that you begin moving the camera, start small.  Test each motor individually +/-100 steps.  
+		If you don't see a motor move, you can test that there isn't a problem with the screw by using a 1/2 inch socket to move the alignment screw for that motor.
+		Use the socket on the front side of the screw (opposite the motor).
+\end{enumerate}
 
 \section{User Interface Commands}
 \begin{enumerate}
@@ -132,15 +143,20 @@ If you can already connect, all is good already.
 
 
 \section{Tools Needed}
-\begin{enumerate}
-	\item[]Bolts for ball joint mount: 5/16 inch allen
-	\item[]Screw assembly bolts: 7/32 inch allen 
-	\item[]Slides: 2.5 mm allen
-	\item[]Screw Flange bolts: 7/16 inch wrench (2x)
-	\item[]Ball joint centering screws: 3/4 inch flexible ratchet wrench with tape
-	\item[]Set screws for motor pins: 1/16 inch allen
-	\item[]Everything else: Phillips or flathead screwdriver
-\end{enumerate}
+
+All the tools needed to drive each screw or bolt on the camera should be included in the camera toolbox. 
+Have a look there if you need something.
+Here is what should be in there:
+
+\begin{itemize}
+	\item 5/16 inch allen -- bolts for ball joint mount
+	\item 7/32 inch allen -- Screw assembly bolts
+	\item 2.5 mm allen -- slides
+	\item 7/16 inch wrench (2x) -- screw Flange bolts
+	\item 3/4 inch flexible ratchet wrench with tape -- ball joint centering screws: 
+	\item 1/16 inch allen -- set screws for motor pins
+	\item Phillips or flathead screwdriver -- everything else
+\end{itemize}
 
 
 \section{Removing the Inner Camera Structure}
@@ -198,6 +214,22 @@ Note that a lifting crane is absolutely necessary, the inner structure is very h
 \begin{center}
 \includegraphics[width = 5.5in]{wiringDrawing.eps}
 \caption{Wiring diagram for the electrical control box.}  
+\label{fd2}
+\end{center}
+\end{figure}
+
+
+\section{Fan Assembly Details}
+
+The camera cooling system consists of two banks of 4 fans blowing through a water cooled radiator.
+Each fan is an ebm-pabst model DV 6224 and the power is supplied by an Acopian power supply.
+Each fan bank runs at a nominal voltage of 24V and draws 7A.
+
+
+\begin{figure}[h]
+\begin{center}
+\includegraphics[width = 4in]{fanWiring.jpg}
+\caption{Terminal block for fan assembly wiring.}  
 \label{fd2}
 \end{center}
 \end{figure}
