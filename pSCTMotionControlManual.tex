@@ -40,7 +40,7 @@ The motion is controlled by three stepper motors as shown in Fig. \ref{fd2}, and
 A web interface hosted on an Arduino Yun interfaces and commands these steppers.
 
 
-\section{Important Warning and Initial Startup}
+\section{Important Warnings/Notes}
 
 First, some important warnings:
 \begin{enumerate}
@@ -49,7 +49,25 @@ First, some important warnings:
 	\item Every time that you begin moving the camera, start small.  Test each motor individually +/-100 steps.  
 		If you don't see a motor move, you can test that there isn't a problem with the screw by using a 1/2 inch socket to move the alignment screw for that motor.
 		Use the socket on the front side of the screw (opposite the motor).
+	\item If you need to turn off motion very quickly in the case of an emergency (someones fingers in the way of motion, etc) you can click the green button on the electronics box.
+		 This will kill the power to the arduino and the motors and everything will stop immediately.
+		 Simply click the button back on and everything should power up without problems.
 \end{enumerate}
+
+
+\section{Startup Procedure}
+
+\begin{itemize}
+	\item Power the electronics box.  You'll need to make sure that the green button on the side of the box is clicked-in.
+	\item Navigate to the ip address that hosts the control html: [IP]/sd/MotionControl/
+	\item You are now able to move the camera along its axis (i.e. all motors together).  
+		If you instead need to align it, click the 'ALIGNMENT MODE' button and follow the instructions in Sec. \ref{alignSec}.
+	\item Note that your first movement command will not go through.  
+		You will be asked by the arduino to authenticate (default is root, arduino).
+	\item Select the direction (+/-) and number of steps to move and have at it.  
+		You will see a message that the movement completed successfully if there are no problems.
+\end{itemize}
+
 
 \section{User Interface Commands}
 \begin{enumerate}
@@ -59,7 +77,7 @@ First, some important warnings:
 	\item[SETALGN:] Write the current position as the alignment position to the Yun sd card. (alignment.txt)
 	\item[Vertical:] Move all three motors.
 	\item[Pitch:] Move motor A in the requested direction. Move motor B in the opposite direction.
-	\item[Roll:] Move both motors A and B in the same direction/
+	\item[Roll:] Move both motors A and B in the same direction.
 	\item[A only:] Move only motor A.
 	\item[B only:] Move only motor B.
 	\item[C only:] Move only motor C.
@@ -89,6 +107,7 @@ First, some important warnings:
 
 
 \section{Alignment Procedure}
+\label{alignSec}
 \begin{enumerate}
 	\item Navigate to the MotionControl webpage from the (arduino ip)/sd webpage.
 	\item Navigate to the alignment mode webpage (password is cta).
@@ -140,23 +159,6 @@ If you can already connect, all is good already.
 		\item ln -s /mnt/sda1/sd
 	\end{itemize}
 \end{enumerate}
-
-
-\section{Tools Needed}
-
-All the tools needed to drive each screw or bolt on the camera should be included in the camera toolbox. 
-Have a look there if you need something.
-Here is what should be in there:
-
-\begin{itemize}
-	\item 5/16 inch allen -- bolts for ball joint mount
-	\item 7/32 inch allen -- Screw assembly bolts
-	\item 2.5 mm allen -- slides
-	\item 7/16 inch wrench (2x) -- screw Flange bolts
-	\item 3/4 inch flexible ratchet wrench with tape -- ball joint centering screws: 
-	\item 1/16 inch allen -- set screws for motor pins
-	\item Phillips or flathead screwdriver -- everything else
-\end{itemize}
 
 
 \section{Removing the Inner Camera Structure}
@@ -223,15 +225,41 @@ Note that a lifting crane is absolutely necessary, the inner structure is very h
 
 The camera cooling system consists of two banks of 4 fans blowing through a water cooled radiator.
 Each fan is an ebm-pabst model DV 6224 and the power is supplied by an Acopian power supply.
-Each fan bank runs at a nominal voltage of 24V and draws 7A.
+The fan banks run at a nominal voltage of 24V and draws 7A.
+Figure \ref{fanPic} shows the terminal to connect the fan bank wires properly.
 
 
 \begin{figure}[h]
 \begin{center}
 \includegraphics[width = 4in]{fanWiring.jpg}
 \caption{Terminal block for fan assembly wiring.}  
-\label{fd2}
+\label{fanPic}
 \end{center}
 \end{figure}
+
+\newpage
+\section{Tools in the Telescope Kit}
+
+All the tools needed to drive each screw or bolt on the camera should be included in the camera toolbox. 
+Additionally, there are spares for all the major components and connectors.
+Have a look there first if you need something.
+Here is what should be in there:
+
+\begin{itemize}
+	\item 3/4 inch flexible ratchet wrench with tape -- ball joint vertical centering screws for alignment
+	\item 9/16 inch flexible ratchet wrench with tape -- ball joint horizontal centering screws for alignment
+	\item 5/16 inch allen -- bolts for ball joint mount
+	\item 7/32 inch allen -- Screw assembly bolts
+	\item 2.5 mm allen -- slides
+	\item 7/16 inch wrench (2x) -- screw flange bolts to connect screw to frame
+	\item 3/16 inch wrench (2x) -- small wrenches for electronics box nuts
+	\item 1/16 inch allen -- set screws for motor pins
+	\item Phillips or flathead screwdriver -- everything else
+	\item Spare $\mu$SD card
+	\item Spare stepper motor driver + wiring terminals
+	\item Spare stepper motor
+	\item Touch-up paint and grease
+	\item Spare electronics box pars (switch, ethernet mount, etc.)
+\end{itemize}
 
 \end{document}
