@@ -1,11 +1,6 @@
 \documentclass[11pt]{article}
 \usepackage{graphicx}
-\usepackage{geometry}                		% See geometry.pdf to learn the layout options. There are lots.
-                 		% ... or a4paper or a5paper or ... 
-%\geometry{landscape}                		% Activate for rotated page geometry
-%\usepackage[parfill]{parskip}    		% Activate to begin paragraphs with an empty line rather than an indent
-			% Use pdf, png, jpg, or eps§ with pdflatex; use eps in DVI mode
-								% TeX will automatically convert eps --> pdf in pdflatex		
+\usepackage{geometry}	
 \usepackage{amssymb}
 \usepackage{float}
 \usepackage{caption}
@@ -47,11 +42,10 @@ First, some important warnings:
 	\item Once the motion control set screws have been locked (this is done after the camera is aligned) {\bf DO NOT MOVE} the camera in any way except all forward or all backward (called vertical or along axis in the UI).
 	Moving in any other way will break or bend things!
 	\item Every time that you begin moving the camera, start small.  Test each motor individually +/-100 steps.  
-		If you don't see a motor move, you can test that there isn't a problem with the screw by using a 1/2 inch socket to move the alignment screw for that motor.
+		If you don't see a motor move, you can test that the screw isn't jammed by using a 1/2 inch socket to move the alignment screw for that motor.
 		Use the socket on the front side of the screw (opposite the motor).
-	\item If you need to turn off motion very quickly in the case of an emergency (someones fingers in the way of motion, etc) you can click the green button on the electronics box.
+	\item If you need to turn off motion very quickly in the case of an emergency (fingers in the way of motion, etc!) you can click the green button on the electronics box.
 		 This will kill the power to the arduino and the motors and everything will stop immediately.
-		 Simply click the button back on and everything should power up without problems.
 \end{enumerate}
 
 
@@ -59,11 +53,12 @@ First, some important warnings:
 
 \begin{itemize}
 	\item Power the electronics box.  You'll need to make sure that the green button on the side of the box is clicked-in.
+	\item If everything powered up without problems, the LEDs on the motor drivers in the electronics box will be solid green. 
 	\item Navigate to the ip address that hosts the control html: [IP]/sd/MotionControl/
-	\item You are now able to move the camera along its axis (i.e. all motors together).  
-		If you instead need to align it, click the 'ALIGNMENT MODE' button and follow the instructions in Sec. \ref{alignSec}.
-	\item Note that your first movement command will not go through.  
+	\item Note that your first button click/command you make will not go through.  
 		You will be asked by the arduino to authenticate (default is root, arduino).
+	\item You are now able to access the stored position, alignment, and range information or move the camera along its axis (i.e. all motors together).  
+		If you need to align the camera, click the 'ALIGNMENT MODE' button and follow the detailed alignment instructions in Sec. \ref{alignSec}.
 	\item Select the direction (+/-) and number of steps to move and have at it.  
 		You will see a message that the movement completed successfully if there are no problems.
 \end{itemize}
@@ -112,11 +107,47 @@ First, some important warnings:
 	\item Navigate to the MotionControl webpage from the (arduino ip)/sd webpage.
 	\item Navigate to the alignment mode webpage (password is cta).
 	\item Use the webpage to move the camera to a position where it is aligned.
-	\item Hit SETALGN to save the alignment position.
+	\item Hit SETALGN to save the alignment position.  The new alignment values will be loaded on the next startup of the arduino.
+	\item Lock down the vertical alignment screws beneath each ball pin.  Use the 3/4 inch ratchet wrench with tape to do this (see Fig. \ref{figAlign}).
+	\item Lock in the horizontal alignment screws.  There are two on either side of the top ball pin and one around each lower ball pin.
+		Use the 9/16 inch ratchet with tape for these guys.
+	\item After these screws are locked in the camera should only be run along its axis!!!
 \end{enumerate}
 
+\begin{figure}[h]
+\begin{center}
+\includegraphics[width = 2.75in]{photoAlign1.JPG}
+\includegraphics[width = 2.75in]{photoAlignTwo.JPG}
+\caption{}  
+\label{figAlign}
+\end{center}
+\end{figure}
+
+
 \section{Troubleshooting}
-If power is lost at any time, it might be the case that one of the following files gets deleted: position.txt, range.txt, alignment.txt\\[15pt]
+
+\subsection{Problem with the motor drivers}
+The LEDs on each of the three motor drivers in the electronics box will be solid green if they are loaded up ok.
+The fact that they are solid green means that they are configured properly and that they are sitting idle.  
+If there is a problem if the configuration, it will show up here.
+\begin{itemize}
+ 	\item Blinking red:  Check to make sure that the motor cable is properly connected.  Otherwise, the motor will need to be reconfigured.
+	\item Blinking green:  This means that the motor is configured but not sitting idle.  You may have to reload the arduino sketch.  
+	\item Another combination of blinks, see the LED codes listed in Fig. \ref{ledCodes}
+\end{itemize}
+
+\begin{figure}[h]
+\begin{center}
+\includegraphics[width = 2.2in]{photoLedCodes.JPG}
+\caption{}  
+\label{ledCodes}
+\end{center}
+\end{figure}
+
+\subsection{Problems with the stored camera information}
+If power is lost at any time, it might be the case that one of the following files gets deleted: position.txt, range.txt, alignment.txt. 
+The information in each of these files is loaded into memory when the program is started.
+The arduino sketch needs to know the camera location to move (there are limits set and calculated each time you request the telescope to move - this way you don't hit the ends).
 Each of these files sits inside the directory /mnt/sda1\\[15pt]
 If position.txt, or range.txt is missing:
 \begin{enumerate}
@@ -126,6 +157,10 @@ If position.txt, or range.txt is missing:
 \item[4.] Go back to the normal operation mode.
 \end{enumerate}
 If alignment.txt is missing realign the camera. Sorry :/. (This should never happen)
+
+\subsection{Problems with a Yun}
+See the next section.
+If the $\mu$SD card is ok, you should be able to simply put the card into a new Yun and roll.
 
 \section{Replacing a Yun}
 \begin{enumerate}
