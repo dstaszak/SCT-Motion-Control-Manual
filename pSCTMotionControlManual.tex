@@ -31,8 +31,9 @@ Last updated July, 2016
 \section{Overview}
 
 This manual details the system in place to control the mechanical motion of the telescope inner structure.
-The motion is controlled by three stepper motors as shown in Fig. \ref{fd2}, and allows up to 5 inches of motion along each independent stepper axis. 
+The motion is controlled by three stepper motors and allows up to 5 inches of motion along each independent stepper axis. 
 A web interface hosted on an Arduino Yun interfaces and commands these steppers.
+The wiring diagram for the electronics control box that hosts the stepper drivers and arduino is shown at the end of the document.
 
 
 \section{Important Warnings/Notes}
@@ -40,12 +41,13 @@ A web interface hosted on an Arduino Yun interfaces and commands these steppers.
 First, some important warnings:
 \begin{enumerate}
 	\item Once the motion control set screws have been locked (this is done after the camera is aligned) {\bf DO NOT MOVE} the camera in any way except all forward or all backward (called vertical or along axis in the UI).
-	Moving in any other way will break or bend things!
-	\item Every time that you begin moving the camera, start small.  Test each motor individually +/-100 steps.  
-		If you don't see a motor move, you can test that the screw isn't jammed by using a 1/2 inch socket to move the alignment screw for that motor.
-		Use the socket on the front side of the screw (opposite the motor).
-	\item If you need to turn off motion very quickly in the case of an emergency (fingers in the way of motion, etc!) you can click the green button on the electronics box.
+	Moving in any other way will likely break or bend things!
+	\item If you need to turn off motion very quickly in the case of an emergency (fingers in the way of motion, etc!), click the green button on the electronics box.
 		 This will kill the power to the arduino and the motors and everything will stop immediately.
+	\item Every time that you begin moving the camera, start small.  Test each motor individually +/-100 steps.  
+		If you don't see a motor move, test that the screw isn't jammed by using a 1/2 inch socket to move the alignment screw for that motor.
+		Use the socket on the front side of the screw (opposite the motor).
+		As easy way to see the screw move is to look at the pin on the end of each stepper motor (draw a black line on it to tell).
 \end{enumerate}
 
 
@@ -54,23 +56,25 @@ First, some important warnings:
 \begin{itemize}
 	\item Power the electronics box.  You'll need to make sure that the green button on the side of the box is clicked-in.
 	\item If everything powered up without problems, the LEDs on the motor drivers in the electronics box will be solid green. 
+		If they aren't solid green see the troubleshooting section below.
 	\item Navigate to the ip address that hosts the control html: [IP]/sd/MotionControl/
 	\item Note that your first button click/command you make will not go through.  
-		You will be asked by the arduino to authenticate (default is root, arduino).
-	\item You are now able to access the stored position, alignment, and range information or move the camera along its axis (i.e. all motors together).  
+		You will be asked instead to authenticate with the arduino (default is root, arduino).
+	\item After authenticating you are good to go.  
+		See the UI section below, you can now access the stored position, alignment, and range information for the camera or move it along its axis (i.e. all motors together).  
 		If you need to align the camera, click the 'ALIGNMENT MODE' button and follow the detailed alignment instructions in Sec. \ref{alignSec}.
-	\item Select the direction (+/-) and number of steps to move and have at it.  
+	\item To move it not in alignment mode, simply select the direction (+/-) and number of steps to move and have at it.  
 		You will see a message that the movement completed successfully if there are no problems.
 \end{itemize}
 
 
 \section{User Interface Commands}
 \begin{enumerate}
-	\item[GETRNG:] Load the camera range into the UI engine from the file on the Yun sd card. (range.txt)
-	\item[GETPOS:] Load the camera position into the UI engine from the file on the Yun sd card. (position.txt)
-	\item[GETALGN:] View the camera alignment position stored on the Yun sd card.
+	\item[GETRNG:] Load the camera range into the UI engine from the file on the Yun sd card.  Prints the stored range to the page in order of motor A, B, C. (range.txt)
+	\item[GETPOS:] Load the camera position into the UI engine from the file on the Yun sd card. Prints the current position to the page in order of motor A, B, C. (position.txt)
+	\item[GETALGN:] View the camera alignment position stored on the Yun sd card. Prints the stored alignment position to the page in order of motor A, B, C. (alignment.txt)
 	\item[SETALGN:] Write the current position as the alignment position to the Yun sd card. (alignment.txt)
-	\item[Vertical:] Move all three motors.
+	\item[Vertical:] Move all three motors by the same increment.
 	\item[Pitch:] Move motor A in the requested direction. Move motor B in the opposite direction.
 	\item[Roll:] Move both motors A and B in the same direction.
 	\item[A only:] Move only motor A.
@@ -95,7 +99,7 @@ First, some important warnings:
 \begin{figure}[h]
 \begin{center}
 \includegraphics[width = 4.5in]{camerapic.png}
-\caption{}  
+\caption{Motor labels and setup as defined from looking at the camera from the back.}  
 \label{fd2}
 \end{center}
 \end{figure}
@@ -107,7 +111,7 @@ First, some important warnings:
 	\item Navigate to the MotionControl webpage from the (arduino ip)/sd webpage.
 	\item Navigate to the alignment mode webpage (password is cta).
 	\item Use the webpage to move the camera to a position where it is aligned.
-	\item Hit SETALGN to save the alignment position.  The new alignment values will be loaded on the next startup of the arduino.
+	\item Hit SETALGN to save the alignment position.  These alignment values will be loaded every time the system is started up, the only way to store new values is with this function (or manually changing the alignment.txt file).
 	\item Lock down the vertical alignment screws beneath each ball pin.  Use the 3/4 inch ratchet wrench with tape to do this (see Fig. \ref{figAlign}).
 	\item Lock in the horizontal alignment screws.  There are two on either side of the top ball pin and one around each lower ball pin.
 		Use the 9/16 inch ratchet with tape for these guys.
@@ -127,19 +131,20 @@ First, some important warnings:
 \section{Troubleshooting}
 
 \subsection{Problem with the motor drivers}
-The LEDs on each of the three motor drivers in the electronics box will be solid green if they are loaded up ok.
-The fact that they are solid green means that they are configured properly and that they are sitting idle.  
-If there is a problem if the configuration, it will show up here.
+The LEDs on each of the three motor drivers in the electronics box will be solid green if everything is ok.
+The fact that they are solid green means that they are powered, configured properly, and that they are sitting idle.  
+If there is a problem in the configuration or hardware, it will likely show up here.
 \begin{itemize}
- 	\item Blinking red:  Check to make sure that the motor cable is properly connected.  Otherwise, the motor will need to be reconfigured.
-	\item Blinking green:  This means that the motor is configured but not sitting idle.  You may have to reload the arduino sketch.  
-	\item Another combination of blinks, see the LED codes listed in Fig. \ref{ledCodes}
+ 	\item Blinking red:  Check to make sure that all three motor cables are properly connected.  
+		A motor will be red if it can't find the hardware.  Otherwise, the motor driver may need to be reconfigured.
+	\item Blinking green:  This means that the motor is powered and configured, but not sitting idle.  You may have to reload the arduino sketch.  If that doesn't work, reload the motor 		configuration again.
+	\item For other combination of blinks and colors, see the LED codes listed in Fig. \ref{ledCodes}
 \end{itemize}
 
 \begin{figure}[h]
 \begin{center}
 \includegraphics[width = 2.2in]{photoLedCodes.JPG}
-\caption{}  
+\caption{Motor driver LED codes.}  
 \label{ledCodes}
 \end{center}
 \end{figure}
@@ -147,8 +152,10 @@ If there is a problem if the configuration, it will show up here.
 \subsection{Problems with the stored camera information}
 If power is lost at any time, it might be the case that one of the following files gets deleted: position.txt, range.txt, alignment.txt. 
 The information in each of these files is loaded into memory when the program is started.
-The arduino sketch needs to know the camera location to move (there are limits set and calculated each time you request the telescope to move - this way you don't hit the ends).
-Each of these files sits inside the directory /mnt/sda1\\[15pt]
+The arduino sketch needs to know the camera location to move.
+This is because there are limits set and calculated each time you request the telescope to move.
+This system is based on these text files - and you don't hit the limits!
+Each of these files sits inside a directory on the arduino SD care: /mnt/sda1\\[15pt]
 If position.txt, or range.txt is missing:
 \begin{enumerate}
 \item[1.] Go into alignment mode if not there already and find the camera range (see "Setting Range" above).
@@ -159,10 +166,11 @@ If position.txt, or range.txt is missing:
 If alignment.txt is missing realign the camera. Sorry :/. (This should never happen)
 
 \subsection{Problems with a Yun}
-See the next section.
+See Sec. \ref{secYun} for more details.
 If the $\mu$SD card is ok, you should be able to simply put the card into a new Yun and roll.
 
-\section{Replacing a Yun}
+\section{Replacing a Yun with a new Yun that isn't configured}
+\label{secYun}
 \begin{enumerate}
 \item Plug Yun into laptop via micro usb.
 \item Look for the Yun's wifi network. If it doesn't appear, hold the wlan reset button until it blinks.
@@ -193,32 +201,55 @@ If you can already connect, all is good already.
 		\item cd /www/
 		\item ln -s /mnt/sda1/sd
 	\end{itemize}
+	
+\item Note that with a fresh install you will need to physically create all the text files discussed above (position.txt, range.txt, alignment.txt).
+	The procedure to do this is detailed in previous sections.
 \end{enumerate}
 
 
 \section{Removing the Inner Camera Structure}
 We show here a step-by-step of removing the inner camera structure.  
 Note that a lifting crane is absolutely necessary, the inner structure is very heavy.
+We used a purple strap connected to an overhead crane that you will see in the pictures.
 
 \begin{enumerate}
 \item Ratchet down bottom screws (screws pushing up on the holding pins)
 \item Move camera all the way forward
-\item Allen wrench off the top piece holding in the pin.  See Figure \ref{fd1}.
+\item Allen wrench off the top piece holding in the pin.  See Figure \ref{figRemove1}.
 \item Jiggle to get the ball to disconnect
-\item Pop top ball joint out.  Now the top tilts forward.  See Figure \ref{fd2}.
+\item Pop top ball joint out.  Now the top tilts forward.  See Figure \ref{figRemove2}.
 \item Pull it up straight.
 \item Pop out one of the two bottom pins (take it out 'leg-by-leg'). 
 \item Lift manually out the other side pin
-\item Don't drop it.  
+\item Don't drop it.  Seriously.
 \end{enumerate}
+
+\begin{figure}[h]
+\begin{center}
+\includegraphics[width = 3in]{photo_2.png}
+\end{center}
+\caption{}  
+\label{figRemove1}
+\end{figure}
+
+
+\begin{figure}[h]
+\begin{center}
+\includegraphics[width = 3in]{photo_3.png}
+\end{center}
+\caption{}  
+\label{figRemove2}
+\end{figure}
+
 
 \section{Mounting the Inner Camera Structure}
 We show here a step-by-step to mount the inner camera structure.  
 Note that a lifting crane is absolutely necessary, the inner structure is very heavy.
+We used a purple strap connected to an overhead crane that you will see in the pictures.
 
 \begin{enumerate}
 \item Move bottom motors all the way forward, the top motor all the way back.
-\item Make sure the screws for the holding pins are ratcheted down.
+\item Make sure the screws for the holding ball pins are ratcheted all the way down.
 \item Put one lower ball joint in place
 \item Bring the whole inner structure down to sink that one in
 \item Pivot to put the other lower pin in
@@ -230,30 +261,7 @@ Note that a lifting crane is absolutely necessary, the inner structure is very h
 \end{enumerate}
 
 
-\begin{figure}[h]
-\begin{center}
-\includegraphics[width = 3in]{photo_2.png}
-\end{center}
-\caption{}  
-\label{fd1}
-\end{figure}
 
-
-\begin{figure}[h]
-\begin{center}
-\includegraphics[width = 3in]{photo_3.png}
-\end{center}
-\caption{}  
-\label{fd2}
-\end{figure}
-
-\begin{figure}[h]
-\begin{center}
-\includegraphics[width = 5.5in]{wiringDrawing.eps}
-\caption{Wiring diagram for the electrical control box.}  
-\label{fd2}
-\end{center}
-\end{figure}
 
 
 \section{Fan Assembly Details}
@@ -296,5 +304,16 @@ Here is what should be in there:
 	\item Touch-up paint and grease
 	\item Spare electronics box pars (switch, ethernet mount, etc.)
 \end{itemize}
+
+
+\section{Electronics Box Wiring Diagram}
+\begin{figure}[h]
+\begin{center}
+\includegraphics[width = 5.5in]{wiringDrawingUpdate.eps}
+\caption{Wiring diagram for the electrical control box.}  
+\label{fd2}
+\end{center}
+\end{figure}
+
 
 \end{document}
