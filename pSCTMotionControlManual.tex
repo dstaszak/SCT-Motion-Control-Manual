@@ -38,7 +38,7 @@ The wiring diagram for the electronics control box that hosts the stepper driver
 
 \section{Important Warnings/Notes}
 
-First, some important warnings:
+First, some important warnings to keep in mind:
 \begin{enumerate}
 	\item Once the motion control set screws have been locked (this is done after the camera is aligned) {\bf DO NOT MOVE} the camera in any way except all forward or all backward (called vertical or along axis in the UI).
 	Moving in any other way will likely break or bend things!
@@ -70,10 +70,10 @@ First, some important warnings:
 
 \section{User Interface Commands}
 \begin{enumerate}
-	\item[GETRNG:] Load the camera range into the UI engine from the file on the Yun sd card.  Prints the stored range to the page in order of motor A, B, C. (range.txt)
-	\item[GETPOS:] Load the camera position into the UI engine from the file on the Yun sd card. Prints the current position to the page in order of motor A, B, C. (position.txt)
-	\item[GETALGN:] View the camera alignment position stored on the Yun sd card. Prints the stored alignment position to the page in order of motor A, B, C. (alignment.txt)
-	\item[SETALGN:] Write the current position as the alignment position to the Yun sd card. (alignment.txt)
+	\item[Get Range:] Load the camera range into the UI engine from the file on the Yun sd card.  Prints the stored range to the page in order of motor A, B, C. (range.txt)
+	\item[Get Position:] Load the camera position into the UI engine from the file on the Yun sd card. Prints the current position to the page in order of motor A, B, C. (position.txt)
+	\item[Get Alignment:] View the camera alignment position stored on the Yun sd card. Prints the stored alignment position to the page in order of motor A, B, C. (alignment.txt)
+	\item[Set Alignment:] Write the current position as the alignment position to the Yun sd card. (alignment.txt)
 	\item[Vertical:] Move all three motors by the same increment.
 	\item[Pitch:] Move motor A in the requested direction. Move motor B in the opposite direction.
 	\item[Roll:] Move both motors A and B in the same direction.
@@ -107,16 +107,41 @@ First, some important warnings:
 
 \section{Alignment Procedure}
 \label{alignSec}
+
+Camera alignment can be broken up into a rough and fine stages.
+The rough alignment stage is performed by manually moving the camera up/down and left/right.
+The fine alignment stages is then performed using the motion control web interface and the stepper motors.
+After getting the camera near where you want it, you tighten down several screws.
+
+\underline{Rough Alignment}:
 \begin{enumerate}
-	\item Navigate to the MotionControl webpage from the (arduino ip)/sd webpage.
+	\item Push the camera to the height you want it.  
+		This can be performed by ratcheting the two bottom vertical alignment screws beneath each ball pin (one direction moves the camera up, the other down).
+		Note that the top alignment screw will need to be completely loose for this to work. 
+		Use the 3/4 inch ratchet wrench with tape to do this (see Fig. \ref{figAlign}).
+	\item Once the camera is at height, move the camera side-to-side to where you want it.
+		You will need to loosen the horizontal alignment screws to do this - there are two on either side of the top ball pin and one around each lower ball pin.
+		Movement will require your strong physicist muscles, no screw to help you here.
+		Note that if it is already close to the center (should be) you can skip ahead to the fine alignment.
+	\item {\bf Warning: }  There is a limitation on the horizontal motion in one direction due to the fan assembly.  
+		When you are aligning the camera horizontally, make sure there is enough clearance between the fans and the metal octagon.
+\end{enumerate}
+
+\underline{Fine Alignment}
+\begin{enumerate}
+	\item Navigate to the MotionControl webpage from the [arduino ip]/sd webpage.
 	\item Navigate to the alignment mode webpage (password is cta).
 	\item Use the webpage to move the camera to a position where it is aligned.
-	\item Hit SETALGN to save the alignment position.  These alignment values will be loaded every time the system is started up, the only way to store new values is with this function (or manually changing the alignment.txt file).
-	\item Lock down the vertical alignment screws beneath each ball pin.  Use the 3/4 inch ratchet wrench with tape to do this (see Fig. \ref{figAlign}).
-	\item Lock in the horizontal alignment screws.  There are two on either side of the top ball pin and one around each lower ball pin.
+	\item Lock down the vertical alignment screws beneath each ball pin.  
+	\item {\bf Warning: } Make sure that the top vertical screw has clearance to move front-to-back.  
+		See Fig. \ref{figAlign2}, don't be in the situation that the screw is in the hole and not down far enough to travel out of the hole.
+	\item Lock in the horizontal alignment screws. 
 		Use the 9/16 inch ratchet with tape for these guys.
+	\item If you need a longer screw to tighten in one of the horizontal directions, there is one in the telescope tool kit.
 	\item After these screws are locked in the camera should only be run along its axis!!!
+	\item Hit 'Set Alignment' to save the alignment position.  These alignment values will be loaded every time the system is started up, the only way to store new values is with this function (or manually changing the alignment.txt file).
 \end{enumerate}
+
 
 \begin{figure}[h]
 \begin{center}
@@ -124,6 +149,14 @@ First, some important warnings:
 \includegraphics[width = 2.75in]{photoAlignTwo.JPG}
 \caption{}  
 \label{figAlign}
+\end{center}
+\end{figure}
+
+\begin{figure}[h]
+\begin{center}
+\includegraphics[width = 2.75in]{screwWarning.JPG}
+\caption{}  
+\label{figAlign2}
 \end{center}
 \end{figure}
 
@@ -270,7 +303,8 @@ The camera cooling system consists of two banks of 4 fans blowing through a wate
 Each fan is an ebm-pabst model DV 6224 and the power is supplied by an Acopian power supply.
 The fan banks run at a nominal voltage of 24V and draws 7A.
 Figure \ref{fanPic} shows the terminal to connect the fan bank wires properly.
-
+Since the camera isn't fully populated, we have manufactured baffles to force the air through the active area. 
+Figure \ref{bafflePic} shows the optimal baffle orientation.
 
 \begin{figure}[h]
 \begin{center}
@@ -279,6 +313,16 @@ Figure \ref{fanPic} shows the terminal to connect the fan bank wires properly.
 \label{fanPic}
 \end{center}
 \end{figure}
+
+\begin{figure}[h]
+\begin{center}
+\includegraphics[width = 2.5in]{baffles.png}
+\caption{Air baffle orientation.}  
+\label{bafflePic}
+\end{center}
+\end{figure}
+
+
 
 \newpage
 \section{Tools in the Telescope Kit}
@@ -303,6 +347,7 @@ Here is what should be in there:
 	\item Spare stepper motor
 	\item Touch-up paint and grease
 	\item Spare electronics box pars (switch, ethernet mount, etc.)
+	\item Spare horizontal alignment screw - allen head, extra long
 \end{itemize}
 
 
