@@ -31,9 +31,42 @@ Last updated July, 2016
 \section{Overview}
 
 This manual details the system in place to control the mechanical motion of the telescope inner structure.
-The motion is controlled by three stepper motors and allows up to 5 inches of motion along each independent stepper axis. 
-A web interface hosted on an Arduino Yun interfaces and commands these steppers.
-The wiring diagram for the electronics control box that hosts the stepper drivers and arduino is shown at the end of the document.
+Figures \ref{FigWhole} and \ref{FigMotor} show the system schematic and a zoom in of one of the motor assemblies.
+The structure of the camera can be roughly broken up into two parts, the outer structure and the inner structure.
+They are connected by three ball pin joints, one on the top and two on the bottom.
+The camera inner structure is supported and positioned only via these three ball pins.
+
+\begin{figure}[h]
+\begin{center}
+\includegraphics[width = 4.5in]{camerapicNew.png}
+\caption{Motor labels and setup as defined from looking at the camera from the front.}  
+\label{FigWhole}
+\end{center}
+\end{figure}
+
+Figure \ref{FigMotor} shows in detail one of the three motor assemblies.
+Motion is controlled in each assembly by a stepper motor that twists a motor driver screw.
+The twist of this screw pushes a flange rigidly connected to a rail system that drives the ball pin.
+One step from a stepper motor corresponds to $\sim$1.02 micron of motion for the ball pin.
+The total range of motion is 5 cm along this direction (z).
+Conversely, motion along the x/y axis is performed manually.
+In Fig. \ref{FigMotor} you can see that there is a track the ball joint can move along to get horizontal movement (as long as the horizontal alignment screw is loosened).
+Additionally, the vertical alignment screws above and below the ball pins control the up/down motion.
+The total allowed motion along these axes is 2.5 cm.
+
+A web interface is hosted on an Arduino Yun to command these steppers.
+The Yun is housed in an electronics control box (see Fig. \ref{elecFit}) that is mounted near the bottom of the back plane of the camera lattice.
+The wiring diagram for this electronics control box is shown in Fig. \ref{elecFit}.
+
+\begin{figure}[h]
+\begin{center}
+\includegraphics[width = 2.6in]{motorAss1Edit.JPG}
+\includegraphics[width = 2.6in]{motorAss2Edit.JPG}
+\caption{Motor assembly with relevant labels (the top motor assembly is shown).}  
+\label{FigMotor}
+\end{center}
+\end{figure}
+
 
 
 \section{Important Warnings/Notes}
@@ -42,10 +75,11 @@ First, some important warnings to keep in mind:
 \begin{enumerate}
 	\item Once the motion control set screws have been locked (this is done after the camera is aligned) {\bf DO NOT MOVE} the camera in any way except all forward or all backward (called vertical or along axis in the UI).
 	Moving in any other way will likely break or bend things!
+	\item The stepper motors supply enough thrust that they can and will {\bf crush fingers} if you aren't careful!  Don't stick fingers around parts that are moving.
 	\item If you need to turn off motion very quickly in the case of an emergency (fingers in the way of motion, etc!), click the green button on the electronics box.
-		 This will kill the power to the arduino and the motors and everything will stop immediately.
-	\item Every time that you begin moving the camera, start small.  Test each motor individually +/-100 steps.  
-		If you don't see a motor move, test that the screw isn't jammed by using a 1/2 inch socket to move the alignment screw for that motor.
+		 This will kill the power to the Arduino and the motors and everything will stop immediately.
+	\item Every time that you begin moving the camera, start small.  Test each motor individually +/-50 steps.  
+		If you don't see a motor move, test that the screw isn't jammed by using a 1/2 inch socket to move the motor driver screw for that motor.
 		Use the socket on the front side of the screw (opposite the motor).
 		As easy way to see the screw move is to look at the pin on the end of each stepper motor (draw a black line on it to tell).
 \end{enumerate}
@@ -59,7 +93,7 @@ First, some important warnings to keep in mind:
 		If they aren't solid green see the troubleshooting section below.
 	\item Navigate to the ip address that hosts the control html: [IP]/sd/MotionControl/
 	\item Note that your first button click/command you make will not go through.  
-		You will be asked instead to authenticate with the arduino (default is root, arduino).
+		You will be asked instead to authenticate with the Arduino (default is root, arduino).
 	\item After authenticating you are good to go.  
 		See the UI section below, you can now access the stored position, alignment, and range information for the camera or move it along its axis (i.e. all motors together).  
 		If you need to align the camera, click the 'ALIGNMENT MODE' button and follow the detailed alignment instructions in Sec. \ref{alignSec}.
@@ -96,13 +130,6 @@ First, some important warnings to keep in mind:
 	\end{enumerate}
 \end{enumerate}
 
-\begin{figure}[h]
-\begin{center}
-\includegraphics[width = 4.5in]{camerapicNew.png}
-\caption{Motor labels and setup as defined from looking at the camera from the back.}  
-\label{fd2}
-\end{center}
-\end{figure}
 
 
 \section{Alignment Procedure}
@@ -170,7 +197,7 @@ If there is a problem in the configuration or hardware, it will likely show up h
 \begin{itemize}
  	\item Blinking red:  Check to make sure that all three motor cables are properly connected.  
 		A motor will be red if it can't find the hardware.  Otherwise, the motor driver may need to be reconfigured.
-	\item Blinking green:  This means that the motor is powered and configured, but not sitting idle.  You may have to reload the arduino sketch.  If that doesn't work, reload the motor 		configuration again.
+	\item Blinking green:  This means that the motor is powered and configured, but not sitting idle.  You may have to reload the Arduino sketch.  If that doesn't work, reload the motor 		configuration again.
 	\item For other combination of blinks and colors, see the LED codes listed in Fig. \ref{ledCodes}
 \end{itemize}
 
@@ -185,10 +212,10 @@ If there is a problem in the configuration or hardware, it will likely show up h
 \subsection{Problems with the stored camera information}
 If power is lost at any time, it might be the case that one of the following files gets deleted: position.txt, range.txt, alignment.txt. 
 The information in each of these files is loaded into memory when the program is started.
-The arduino sketch needs to know the camera location to move.
+The Arduino sketch needs to know the camera location to move.
 This is because there are limits set and calculated each time you request the telescope to move.
 This system is based on these text files - and you don't hit the limits!
-Each of these files sits inside a directory on the arduino SD care: /mnt/sda1\\[15pt]
+Each of these files sits inside a directory on the Arduino SD care: /mnt/sda1\\[15pt]
 If position.txt, or range.txt is missing:
 \begin{enumerate}
 \item[1.] Go into alignment mode if not there already and find the camera range (see "Setting Range" above).
@@ -227,7 +254,7 @@ If the $\mu$SD card is ok, you should be able to simply put the card into a new 
 The motor drivers are located in the electronics box, see the wiring diagram below.
 
 \item {\textbf{If you are using a Linino:}}  If the Ardiuno is a Linino you may have to create a symbolic link for the OS to know where to look for the website.  
-After these steps you should be able to load the webpage via [ArduinoIP] / [sd].  
+After these steps you should be able to load the webpage via [Arduino IP] / [sd].  
 If you can already connect, all is good already.
 	\begin{itemize}
 		\item ssh -Y root@[IP address]
@@ -356,7 +383,7 @@ Here is what should be in there:
 \begin{center}
 \includegraphics[width = 5.5in]{wiringDrawingUpdate.eps}
 \caption{Wiring diagram for the electrical control box.}  
-\label{fd2}
+\label{elecFit}
 \end{center}
 \end{figure}
 
