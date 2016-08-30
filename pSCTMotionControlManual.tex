@@ -30,11 +30,14 @@ Last updated July, 2016
 
 \section{Overview}
 
-This manual details the system in place to control the mechanical motion of the telescope inner structure.
-Figures \ref{FigWhole} and \ref{FigMotor} show the system schematic and a zoom in of one of the motor assemblies.
-The structure of the camera can be roughly broken up into two parts, the outer structure and the inner structure.
-They are connected by three ball pin joints, one on the top and two on the bottom.
-The camera inner structure is supported and positioned only via these three ball pins.
+This manual details the system in place to move and align the prototype SCT telescope camera.
+Figure \ref{FigWhole} shows a system overview schematic.
+The camera can be roughly broken up into two main structural components, the outer structure and the inner structure.
+The camera outer structure does not move and rigidly connects to the rest of the telescope (via the octagon - shown in yellow in Fig. \ref{FigWhole}).
+The inner structure consists of the camera itself, the associated electronics, and the thermal management system.
+The inner structure is movable and is connected to the outer structure by three ball pin joints, one on the top and two on the bottom.
+The inner structure is supported and positioned only via these three ball pins.
+
 
 \begin{figure}[h]
 \begin{center}
@@ -46,16 +49,20 @@ The camera inner structure is supported and positioned only via these three ball
 
 Figure \ref{FigMotor} shows in detail one of the three motor assemblies.
 Motion is controlled in each assembly by a stepper motor that twists a motor driver screw.
-The twist of this screw pushes a flange rigidly connected to a rail system that drives the ball pin.
-One step from a stepper motor corresponds to $\sim$1.02 micron of motion for the ball pin.
+The twist of this screw pushes or pulls a flange rigidly connected to the ball pin assembly.
+The motion of this ball pin assembly is restricted to an axis defined by a rail system.
+The driver screw and rails must be parallel for this to work well.
+One step from a stepper motor corresponds to $\sim$1.02 micron of motion along this axis for the ball pin.
 The total range of motion is 5 cm along this direction (z).
+
 Conversely, motion along the x/y axis is performed manually.
-In Fig. \ref{FigMotor} you can see that there is a track the ball joint can move along to get horizontal movement (as long as the horizontal alignment screw is loosened).
+With the horizontal alignment screws loose, the ball pin can move along a track perpendicular to the rails (see Fig. \ref{FigMotor}).
+However, there is no stepper to help with horizontal shifts.
 Additionally, the vertical alignment screws above and below the ball pins control the up/down motion.
 The total allowed motion along these axes is 2.5 cm.
 
-A web interface is hosted on an Arduino Yun to command these steppers.
-The Yun is housed in an electronics control box (see Fig. \ref{elecFit}) that is mounted near the bottom of the back plane of the camera lattice.
+A web interface is hosted on an Arduino Yun to command the three steppers.
+The Yun is housed in an electronics control box (see Fig. \ref{FigElecBox}) that is mounted near the bottom of the back plane of the camera lattice.
 The wiring diagram for this electronics control box is shown in Fig. \ref{elecFit}.
 
 \begin{figure}[h]
@@ -75,7 +82,7 @@ First, some important warnings to keep in mind:
 \begin{enumerate}
 	\item Once the motion control set screws have been locked (this is done after the camera is aligned) {\bf DO NOT MOVE} the camera in any way except all forward or all backward (called vertical or along axis in the UI).
 	Moving in any other way will likely break or bend things!
-	\item The stepper motors supply enough thrust that they can and will {\bf crush fingers} if you aren't careful!  Don't stick fingers around parts that are moving.
+	\item The stepper motors supply enough thrust that they can and will {\bf CRUSH FINGERS} if you aren't careful!  Don't stick fingers around parts that are moving.
 	\item If you need to turn off motion very quickly in the case of an emergency (fingers in the way of motion, etc!), click the green button on the electronics box.
 		 This will kill the power to the Arduino and the motors and everything will stop immediately.
 	\item Every time that you begin moving the camera, start small.  Test each motor individually +/-50 steps.  
@@ -87,8 +94,18 @@ First, some important warnings to keep in mind:
 
 \section{Startup Procedure}
 
+\begin{figure}[h]
+\begin{center}
+\includegraphics[width = 3.0in]{elecBox.JPG}
+\caption{Electronics box located on the bottom of the back plane of the camera.}  
+\label{FigElecBox}
+\end{center}
+\end{figure}
+
+
 \begin{itemize}
 	\item Power the electronics box.  You'll need to make sure that the green button on the side of the box is clicked-in.
+		See Fig. \ref{FigElecBox} for a picture of the electronics box that houses the Arduino and stepper motor drivers (Fig. \ref{elecFit} shows the electrical schematic).  
 	\item If everything powered up without problems, the LEDs on the motor drivers in the electronics box will be solid green. 
 		If they aren't solid green see the troubleshooting section below.
 	\item Navigate to the ip address that hosts the control html: [IP]/sd/MotionControl/
@@ -96,13 +113,21 @@ First, some important warnings to keep in mind:
 		You will be asked instead to authenticate with the Arduino (default is root, arduino).
 	\item After authenticating you are good to go.  
 		See the UI section below, you can now access the stored position, alignment, and range information for the camera or move it along its axis (i.e. all motors together).  
-		If you need to align the camera, click the 'ALIGNMENT MODE' button and follow the detailed alignment instructions in Sec. \ref{alignSec}.
-	\item To move it not in alignment mode, simply select the direction (+/-) and number of steps to move and have at it.  
+		If you need to move the camera in any orientation other than all-forward or all-back, click the 'ALIGNMENT MODE' button. 
+	\item Conversely, to move only all-forward or all-back select the direction (+/-) and number of steps to move and have at it.  
 		You will see a message that the movement completed successfully if there are no problems.
+	\item For a more detailed discussion of the alignment procedure, see Sec. \ref{alignSec}.
 \end{itemize}
 
 
 \section{User Interface Commands}
+	Position, range, and alignment information is stored in text files in the SD card of the Arduino (specifically it is here  /mnt/sda1/*.txt).
+	This information can then be accessed by the control software at any time or seen by directly ssh'ing into the Arduino.
+	The position is the current position of the camera, this location is rewritten to the text file after every motion.
+	The range is defined by users, it is meant as a fail-safe so that the motors can not drive motion past the hardware limits of the screw assembly.
+	This only needs to be set once when a new Arduino or SD card is used.
+	The alignment is also defined by users, it is the stored location where the camera was found to be properly 'aligned'.
+	Again, only needs to be done once.
 \begin{enumerate}
 	\item[Get Range:] Load the camera range into the UI engine from the file on the Yun sd card.  Prints the stored range to the page in order of motor A, B, C. (range.txt)
 	\item[Get Position:] Load the camera position into the UI engine from the file on the Yun sd card. Prints the current position to the page in order of motor A, B, C. (position.txt)
@@ -110,14 +135,14 @@ First, some important warnings to keep in mind:
 	\item[Set Alignment:] Write the current position as the alignment position to the Yun sd card. (alignment.txt)
 	\item[Vertical:] Move all three motors by the same increment.
 	\item[Pitch:] Move motor A in the requested direction. Move motor B in the opposite direction.
-	\item[Roll:] Move both motors A and B in the same direction.
+	\item[Roll:] Move both motors A and B in the same direction and C in the opposite direction.  There will be no movement along z of the camera, just a tilt.
 	\item[A only:] Move only motor A.
 	\item[B only:] Move only motor B.
 	\item[C only:] Move only motor C.
 	
 	\item[Setting Range:] If for some reason the range hasn't been set correctly, do the folowing:
 	\begin{enumerate} 
-		\item[1.]SSH into the Yun.
+		\item[1.]SSH into the Yun (default username, password is root, arduino)
 		\item[2.]Use vi to manually change the position.txt file (in /mnt/sda1/) to "20000L20000L20000".
 		\item[3.]Use vi to manually change the range.txt file (in /mnt/sda1/) to "20000L20000L20000".
 		\item[4.]Hit GETPOS on the webpage.
@@ -145,6 +170,7 @@ After getting the camera near where you want it, you tighten down several screws
 	\item Push the camera to the height you want it.  
 		This can be performed by ratcheting the two bottom vertical alignment screws beneath each ball pin (one direction moves the camera up, the other down).
 		Note that the top alignment screw will need to be completely loose for this to work. 
+		{\bf You have to keep the 2 lower screws perfectly in sync, or you will tilt the camera!}
 		Use the 3/4 inch ratchet wrench with tape to do this (see Fig. \ref{figAlign}).
 	\item Once the camera is at height, move the camera side-to-side to where you want it.
 		You will need to loosen the horizontal alignment screws to do this - there are two on either side of the top ball pin and one around each lower ball pin.
@@ -164,8 +190,10 @@ After getting the camera near where you want it, you tighten down several screws
 		See Fig. \ref{figAlign2}, don't be in the situation that the screw is in the hole and not down far enough to travel out of the hole.
 	\item Lock in the horizontal alignment screws. 
 		Use the 9/16 inch ratchet with tape for these guys.
+	\item {\bf Warning 2: } Make sure that the top horizontal screw (left one) has clearance to move along the full z axis.  
+		See Fig. \ref{FigMotor}, don't be in the case where this screw will hit the stepper motor assembly when moving along the z axis.
 	\item If you need a longer screw to tighten in one of the horizontal directions, there is one in the telescope tool kit.
-	\item After these screws are locked in the camera should only be run along its axis!!!
+	\item {\bf After these screws are locked in the camera should only be run along the z axis (all-forward, all-back) - OR YOU WILL BEND/BREAK THE CAMERA!}
 	\item Hit 'Set Alignment' to save the alignment position.  These alignment values will be loaded every time the system is started up, the only way to store new values is with this function (or manually changing the alignment.txt file).
 \end{enumerate}
 
@@ -191,14 +219,22 @@ After getting the camera near where you want it, you tighten down several screws
 \section{Troubleshooting}
 
 \subsection{Problem with the motor drivers}
+
 The LEDs on each of the three motor drivers in the electronics box will be solid green if everything is ok.
 The fact that they are solid green means that they are powered, configured properly, and that they are sitting idle.  
 If there is a problem in the configuration or hardware, it will likely show up here.
+
 \begin{itemize}
- 	\item Blinking red:  Check to make sure that all three motor cables are properly connected.  
-		A motor will be red if it can't find the hardware.  Otherwise, the motor driver may need to be reconfigured.
-	\item Blinking green:  This means that the motor is powered and configured, but not sitting idle.  You may have to reload the Arduino sketch.  If that doesn't work, reload the motor 		configuration again.
-	\item For other combination of blinks and colors, see the LED codes listed in Fig. \ref{ledCodes}
+	\item \underline{Blinking green}:  This means that the motor is powered and configured, but not sitting idle.  
+		You may have to reload the Arduino sketch.
+		The Arduino sketch is located here: https://github.com/wakely/sct-camera-software.  
+		To upload the sketch you will have to download the Arduino IDE and be on a machine that can connect to the Arduino either via wifi or ethernet.
+		If reloading the sketch doesn't work, reload the motor configuration.
+ 	\item \underline{Blinking red}:  Check to make sure that all three motor cables are properly connected.  
+		A motor will be red if it can't find the hardware.  Otherwise, the motor driver may need to be reconfigured (see Sec. \ref{SecConfig}).
+	\item \underline{Other combination of blinks and colors}:  See the LED codes listed in Fig. \ref{ledCodes} for insight.
+	 	If reloading the motor driver configuration doesn't work you may have to change out the driver (Sec. \ref{SecConfig}).  
+		There is a spare in the telescope toolkit and you should be able to change it out, configure it, and be good to go.
 \end{itemize}
 
 \begin{figure}[h]
@@ -210,12 +246,13 @@ If there is a problem in the configuration or hardware, it will likely show up h
 \end{figure}
 
 \subsection{Problems with the stored camera information}
+
 If power is lost at any time, it might be the case that one of the following files gets deleted: position.txt, range.txt, alignment.txt. 
 The information in each of these files is loaded into memory when the program is started.
 The Arduino sketch needs to know the camera location to move.
-This is because there are limits set and calculated each time you request the telescope to move.
-This system is based on these text files - and you don't hit the limits!
+This is because there are limits set and calculated each time you request the telescope to move so you don't hit the limits.
 Each of these files sits inside a directory on the Arduino SD care: /mnt/sda1\\[15pt]
+
 If position.txt, or range.txt is missing:
 \begin{enumerate}
 \item[1.] Go into alignment mode if not there already and find the camera range (see "Setting Range" above).
@@ -229,13 +266,32 @@ If alignment.txt is missing realign the camera. Sorry :/. (This should never hap
 See Sec. \ref{secYun} for more details.
 If the $\mu$SD card is ok, you should be able to simply put the card into a new Yun and roll.
 
+
 \section{Replacing a Yun with a new Yun that isn't configured}
+
+\begin{figure}[h]
+\begin{center}
+\includegraphics[width = 2.4in]{arduino1.png}
+\includegraphics[width = 3.2in]{arduino2.png}
+\caption{Arduino Yun button locations and overview schematic.}  
+\label{YunFig}
+\end{center}
+\end{figure}
+
 \label{secYun}
 \begin{enumerate}
+\item Replace the Arduino Yun in the electronics box (Fig. \ref{FigElecBox}) with a new one from the telescope toolkit.
+	You will need to take the PCB shield on the Arduino carefully, the wires soldered to this shield are tight and you don't want to bend the pins from the shield as you are taking it off.
+	Once you have the shield off, the Arduino is mounted to the bottom aluminum plate in the box by three screws (flathead screwdriver needed for 4-40, 7/16'' screws).  
+	Each of these screws additionally has a plastic standoff between the Arduino PCB and the plate, catch them as you are taking the Arduino off.
+	Note that there are additional space-offs and screws in the telescope toolkit if you lose one.
 \item Plug Yun into laptop via micro usb.
-\item Look for the Yun's wifi network. If it doesn't appear, hold the wlan reset button until it blinks.
+\item Look for the Yun's wifi network. If it doesn't appear, hold the wlan reset button until it blinks. 
+	See Fig. \ref{YunFig} for reset button locations.
+	Pressing all three buttons for several seconds will reset the Yun to factory defaults.
 \item If the Yun's wifi network still doesn't appear try plugging the Yun ethernet into your LAN and connect to the Yun or Linino's network. Continue below as appropriate.\\
-\item Are you using a Linino or Arduino?
+\item Are you using a Linino or Arduino?  Linino is an Arduino made by a competitor, it is essentially identical hardware with a slightly different operating system.
+	An Arduino is made by arduino.cc whereas a Linino is made by arduino.org - you can see this on the body of the PSB.
         	\begin{itemize} 
 		\item {\textbf{Linino:}} Open a browser and go to 192.168.240.1 and login to the Linino web UI. The default password is 'doghunter'.
 		\item {\textbf{Arduino:}} Open a browser and go to arduino.local and login to the Arduino web UI. The default password is 'arduino' or 'arduino1'.
@@ -264,6 +320,36 @@ If you can already connect, all is good already.
 	
 \item Note that with a fresh install you will need to physically create all the text files discussed above (position.txt, range.txt, alignment.txt).
 	The procedure to do this is detailed in previous sections.
+\end{enumerate}
+
+
+\section{Configuring the Stepper Motor Drivers}
+\label{SecConfig}
+
+Reloading the configuration of a stepper motor driver will require a Windows machine and RJ11-to-Serial cable.
+A cable is included in the telescope toolkit, a computer is not.
+The various problem codes are shown in Fig \ref{ledCodes}, most of which will require you to (re-)configure the driver.
+To do that, follow these steps:
+
+\begin{enumerate}
+\item Download SureStep Pro 1.0.8: \newline
+http://support.automationdirect.com/products/surestep.html \newline
+After you unzip the file the executable is there (note this needs to be on a Windows machine!)
+The datasheet for the motor driver is also located here for the STP-DRV-4850: \newline
+$www.automationdirect.com/static/manuals/surestepmanual/surestepdrive2\_datasheet.pdf$
+
+\item Connect the computer to one of the properly configured driver motors, one that shows a green LED that isn't blinking. 
+Use the RJ11-to-Serial cable we provided and connect to one of the back ports on the computer.
+
+\item Click the 'Upload from Drive' to store the configuration from the working motor into the program.
+
+\item Now connect to cable to the driver that isn't properly configured and click 'Download to Drive'.
+This should reconfigure this driver with the proper settings from the prior driver.
+
+\item If all the drivers are improperly configured you will have to manually set the configuration in the SureStep UI.  
+Figure \ref{ConfigPic} shows the UI windows and configuration values for a working stepper motor.  
+Input all these values into the various fields, connect to that driver, and then click 'Download to Drive'.
+Note that we use a 'custom motor' configuration.
 \end{enumerate}
 
 
@@ -321,25 +407,58 @@ We used a purple strap connected to an overhead crane that you will see in the p
 \end{enumerate}
 
 
-
-
-
+\newpage
 \section{Fan Assembly Details}
 
 The camera cooling system consists of two banks of 4 fans blowing through a water cooled radiator.
 Each fan is an ebm-pabst model DV 6224 and the power is supplied by an Acopian power supply.
-The fan banks run at a nominal voltage of 24V and draws 7A.
+Each fan bank runs at a nominal voltage of 24V and draws 7A (14A for both banks, all 8 fans).
 Figure \ref{fanPic} shows the terminal to connect the fan bank wires properly.
-Since the camera isn't fully populated, we have manufactured baffles to force the air through the active area. 
-Figure \ref{bafflePic} shows the optimal baffle orientation.
 
-\begin{figure}[h]
+\begin{figure}[!th]
 \begin{center}
 \includegraphics[width = 4in]{fanWiring.jpg}
 \caption{Terminal block for fan assembly wiring.}  
 \label{fanPic}
 \end{center}
 \end{figure}
+
+\newpage
+\section{Air Mitigation System - Baffles}
+
+Since the camera isn't fully populated, we have manufactured baffles to force the air through the active area. 
+Figure \ref{bafflePic2} shows the two types of baffles made.
+Figure \ref{bafflePic} shows the optimal baffle orientation.
+There is a front baffle that fits over the front of the camera areas that isn't populated and inner lattice baffles that fit into some of the empty module slots.
+
+\begin{itemize}
+	\item \underline{Front Baffle}: Secure the front baffle to the camera lattice using the eight holes around the perimeter.
+		The baffle only fits onto the camera in one orientation and the intended orientation is marked clearly with the word 'TOP' on the back.
+		Note that the lock nuts on the back of the baffle should not be removed under any circumstances.
+		It is very difficult to put together once it is apart.
+
+	\item \underline{Inner lattice camera baffles}:  The inner camera baffles are made with two holes in the back end.  
+		This was done so that they could be inserted in the lattice module slots in either diagonal orientation.  
+		The preferred orientation is shown in Fig. \ref{bafflePic}.  To install them:
+		\begin{enumerate} 
+			\item Slide the baffle into the lattice module slot until the front is flush with the focal plane.
+			\item In the back of the camera you will need to secure the baffle with one of the red tipped thumb screws. 
+				The baffle will have sagged a little so you will need to lift it in order to secure properly.
+			\item Grab your trusty flathead and prop it up until one of the holes is centered in the slot.
+				Use the thumb screw to secure.
+		\end{enumerate}
+\end{itemize}
+
+
+\begin{figure}[h]
+\begin{center}
+\includegraphics[width = 2.5in]{frontBaffle.png}
+\includegraphics[width = 2.5in]{innerBaffle.png}
+\caption{Front baffle shown on the left. Inner camera baffle shown on the right being inserted into one of the module slots from the front of the camera. }  
+\label{bafflePic2}
+\end{center}
+\end{figure}
+
 
 \begin{figure}[h]
 \begin{center}
@@ -375,15 +494,28 @@ Here is what should be in there:
 	\item Touch-up paint and grease
 	\item Spare electronics box pars (switch, ethernet mount, etc.)
 	\item Spare horizontal alignment screw - allen head, extra long
+	\item RJ11 to serial cable for stepper motor configuration
 \end{itemize}
 
-
+\newpage
 \section{Electronics Box Wiring Diagram}
 \begin{figure}[h]
 \begin{center}
 \includegraphics[width = 5.5in]{wiringDrawingUpdate.eps}
 \caption{Wiring diagram for the electrical control box.}  
 \label{elecFit}
+\end{center}
+\end{figure}
+
+
+\begin{figure}[h]
+\begin{center}
+\includegraphics[width = 5in]{MotorConfiguration.png}
+\includegraphics[width = 2.5in]{MotorConfig2.png}
+\includegraphics[width = 2.5in]{MotorConfig3.png}
+\includegraphics[width = 2.5in]{MotorConfig4.png}
+\caption{SureStep 1.0.8 UI with the proper configuration settings.  The top photo shows the main UI and the other UIs are accessed via the 'Motion and I/O' button and 'Motor...' button.}  
+\label{ConfigPic}
 \end{center}
 \end{figure}
 
