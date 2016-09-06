@@ -58,7 +58,7 @@ The total range of motion is 5 cm along this direction (z).
 Conversely, motion along the x/y axis is performed manually.
 With the horizontal alignment screws loose, the ball pin can move along a track perpendicular to the rails (see Fig. \ref{FigMotor}).
 However, there is no stepper to help with horizontal shifts.
-Additionally, the vertical alignment screws above and below the ball pins control the up/down motion.
+Additionally, the vertical alignment screws above and below the ball pins control the up/down positioning.
 The total allowed motion along these axes is 2.5 cm.
 
 A web interface is hosted on an Arduino Yun to command the three steppers.
@@ -110,18 +110,21 @@ First, some important warnings to keep in mind:
 		If they aren't solid green see the troubleshooting section below.
 	\item Navigate to the ip address that hosts the control html: [IP]/sd/MotionControl/
 	\item Note that your first button click/command you make will not go through.  
-		You will be asked instead to authenticate with the Arduino (default is root, arduino).
+		You will be asked instead to authenticate with the Arduino (default username, password is root, arduino).
 	\item After authenticating you are good to go.  
 		See the UI section below, you can now access the stored position, alignment, and range information for the camera or move it along its axis (i.e. all motors together).  
 		If you need to move the camera in any orientation other than all-forward or all-back, click the 'ALIGNMENT MODE' button. 
-	\item Conversely, to move only all-forward or all-back select the direction (+/-) and number of steps to move and have at it.  
+	\item \underline{\it If you gave the wrong username/password when prompted you are not explicitly told.}
+		You will be able to give the arduino commands but will not see any response messages or camera motion.
+		Kill the browser and try again.
+	\item To move only all-forward or all-back select the direction (+/-) and number of steps to move and have at it.  
 		You will see a message that the movement completed successfully if there are no problems.
 	\item For a more detailed discussion of the alignment procedure, see Sec. \ref{alignSec}.
 \end{itemize}
 
 
 \section{User Interface Commands}
-	Position, range, and alignment information is stored in text files in the SD card of the Arduino (specifically it is here  /mnt/sda1/*.txt).
+	Position, range, and alignment information is stored in text files on an SD card mounted on the Arduino (specifically it is here  /mnt/sda1/*.txt).
 	This information can then be accessed by the control software at any time or seen by directly ssh'ing into the Arduino.
 	The position is the current position of the camera, this location is rewritten to the text file after every motion.
 	The range is defined by users, it is meant as a fail-safe so that the motors can not drive motion past the hardware limits of the screw assembly.
@@ -160,7 +163,7 @@ First, some important warnings to keep in mind:
 \section{Alignment Procedure}
 \label{alignSec}
 
-Camera alignment can be broken up into a rough and fine stages.
+Camera alignment can be broken up into rough and fine stages.
 The rough alignment stage is performed by manually moving the camera up/down and left/right.
 The fine alignment stages is then performed using the motion control web interface and the stepper motors.
 After getting the camera near where you want it, you tighten down several screws.
@@ -229,11 +232,11 @@ If there is a problem in the configuration or hardware, it will likely show up h
 		You may have to reload the Arduino sketch.
 		The Arduino sketch is located here: https://github.com/wakely/sct-camera-software.  
 		To upload the sketch you will have to download the Arduino IDE and be on a machine that can connect to the Arduino either via wifi or ethernet.
-		If reloading the sketch doesn't work, reload the motor configuration.
+		If reloading the sketch doesn't work, reload the motor configuration (see Sec. \ref{SecConfig}).
  	\item \underline{Blinking red}:  Check to make sure that all three motor cables are properly connected.  
 		A motor will be red if it can't find the hardware.  Otherwise, the motor driver may need to be reconfigured (see Sec. \ref{SecConfig}).
 	\item \underline{Other combination of blinks and colors}:  See the LED codes listed in Fig. \ref{ledCodes} for insight.
-	 	If reloading the motor driver configuration doesn't work you may have to change out the driver (Sec. \ref{SecConfig}).  
+	 	If reloading the motor driver configuration doesn't work you may have to change out the driver (see Sec. \ref{SecConfig}).  
 		There is a spare in the telescope toolkit and you should be able to change it out, configure it, and be good to go.
 \end{itemize}
 
@@ -300,11 +303,11 @@ If it sounds like metal-on-metal, stop moving the camera and investigate.
 \label{secYun}
 \begin{enumerate}
 \item Replace the Arduino Yun in the electronics box (Fig. \ref{FigElecBox}) with a new one from the telescope toolkit.
-	You will need to take the PCB shield on the Arduino carefully, the wires soldered to this shield are tight and you don't want to bend the pins from the shield as you are taking it off.
+	You will need to take the PCB shield on top of the Arduino off carefully, the wires soldered to this shield are tight and you don't want to bend the pins from the shield as you are taking it off.
 	Once you have the shield off, the Arduino is mounted to the bottom aluminum plate in the box by three screws (flathead screwdriver needed for 4-40, 7/16'' screws).  
 	Each of these screws additionally has a plastic standoff between the Arduino PCB and the plate, catch them as you are taking the Arduino off.
-	Note that there are additional space-offs and screws in the telescope toolkit if you lose one.
-\item Plug Yun into laptop via micro usb.
+	Note that there are additional spacers and screws in the telescope toolkit if you lose one.
+\item Plug the Yun into a laptop via micro usb to power it.
 \item Look for the Yun's wifi network. If it doesn't appear, hold the wlan reset button until it blinks. 
 	See Fig. \ref{YunFig} for reset button locations.
 	Pressing all three buttons for several seconds will reset the Yun to factory defaults.
@@ -358,11 +361,11 @@ The datasheet for the motor driver is also located here for the STP-DRV-4850: \n
 $www.automationdirect.com/static/manuals/surestepmanual/surestepdrive2\_datasheet.pdf$
 
 \item Connect the computer to one of the properly configured driver motors, one that shows a green LED that isn't blinking. 
-Use the RJ11-to-Serial cable we provided and connect to one of the back ports on the computer.
+Use the RJ11-to-Serial cable for this and connect to one of the serial ports on the computer.
 
 \item Click the 'Upload from Drive' to store the configuration from the working motor into the program.
 
-\item Now connect to cable to the driver that isn't properly configured and click 'Download to Drive'.
+\item Now connect the cable to the driver that isn't properly configured and click 'Download to Drive'.
 This should reconfigure this driver with the proper settings from the prior driver.
 
 \item If all the drivers are improperly configured you will have to manually set the configuration in the SureStep UI.  
