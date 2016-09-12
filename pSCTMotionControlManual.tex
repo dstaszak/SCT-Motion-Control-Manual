@@ -109,6 +109,14 @@ First, some important warnings to keep in mind:
 	\item If everything powered up without problems, the LEDs on the motor drivers in the electronics box will be solid green. 
 		If they aren't solid green see the troubleshooting section below.
 	\item Navigate to the ip address that hosts the control html: [IP]/sd/MotionControl/
+		\begin{itemize}
+			\item If this is your first time connecting to this Arduino Yun, you'll need to configure the Arduino to work in your LAN.
+			\item Look for the Yun’s wifi network after it is powered on.  
+			It will broadcast a wifi signal for a couple minutes after starting up -- usually this is called arduino-[series of numbers/letters].
+			\item If it doesn’t appear, hold the wlan reset button until the Yun LEDs blink.  Figure \ref{YunFig} shows the reset button locations. 
+			See Sec. \ref{secYun} for more suggestions if this still doesn't work.
+			\item Section \ref{secYun}, steps 5-11, also lists detailed instructions on configuring the Yun to work in your local network once you are connected.
+		\end{itemize}
 	\item Note that your first button click/command you make will not go through.  
 		You will be asked instead to authenticate with the Arduino (default username, password is root, arduino).
 	\item After authenticating you are good to go.  
